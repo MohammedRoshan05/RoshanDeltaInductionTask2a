@@ -16,19 +16,19 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.Random;
+
 public class MyCanvasView extends View {
 
     private Paint lane_fill;
     private Paint obstaclePaint;
     private ObstacleSquare obstacle1;
-    private ObstacleSquare obstacle2;
     private ObstacleSquare obstacle3;
-    private ObstacleSquare obstacle4;
     private ObstacleSquare obstacle5;
 
     private Paint jerryPaint;
     private float jerryX = 540;
-    private float jerryY = 1500;
+    public float jerryY = 1500;
     private float jerryRadius;
     private Paint TomPaint;
     private float TomX = 540;
@@ -50,19 +50,15 @@ public class MyCanvasView extends View {
         obstaclePaint.setColor(Color.parseColor("#2a83eb"));
 
         obstacle1 = new ObstacleSquare();
-        obstacle1.setObstacleProps(obstaclePaint, 10, 90, 100);
+        obstacle1.setObstacleProps(obstaclePaint, 10, 90, 0);
 
-        obstacle2 = new ObstacleSquare();
-        obstacle2.setObstacleProps(obstaclePaint, 10, 90, 1600);
 
         obstacle3 = new ObstacleSquare();
-        obstacle3.setObstacleProps(obstaclePaint, 10, 435, 850);
+        obstacle3.setObstacleProps(obstaclePaint, 10, 435, 400);
 
-        obstacle4 = new ObstacleSquare();
-        obstacle4.setObstacleProps(obstaclePaint, 10, 780, 100);
 
         obstacle5 = new ObstacleSquare();
-        obstacle5.setObstacleProps(obstaclePaint, 10, 780, 1600);
+        obstacle5.setObstacleProps(obstaclePaint, 10, 780, 800);
     }
 
     private void init() {
@@ -100,9 +96,9 @@ public class MyCanvasView extends View {
 
     private void drawObstacles(Canvas canvas) {
         drawObstacle(canvas, obstacle1);
-        drawObstacle(canvas, obstacle2);
+//        drawObstacle(canvas, obstacle2);
         drawObstacle(canvas, obstacle3);
-        drawObstacle(canvas, obstacle4);
+//        drawObstacle(canvas, obstacle4);
         drawObstacle(canvas, obstacle5);
     }
 
@@ -143,6 +139,36 @@ public class MyCanvasView extends View {
         lane.lineTo(x1, y1);
         canvas.drawPath(lane, paint);
     }
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+//        switch (event.getAction()) {
+//            case MotionEvent.ACTION_DOWN:  // When the touch starts
+//            case MotionEvent.ACTION_MOVE:  // When the touch moves
+//                float touchX = event.getX();
+//                float touchY = event.getY();
+//
+//                if (isTouchWithinJerry(touchX, touchY)) {
+//                    // Check if the touch is within the Jerry circle
+//                    if (touchX < jerryX) {
+//                        // If touch is to the left of Jerry, move left
+//                        if(jerryX >= 390){
+//                            // we dont move left if already in left lane
+//                            moveJerryLeft();
+//                        }
+//                    }else {
+//                        // If touch is to the right of Jerry, move right
+//                        if(jerryX <= 690){
+//                            // we dont move right if already in right lane
+//                            moveJerryRight();
+//                        }
+//                    }
+//                    return true;  // Event handled, stop further propagation
+//                }
+//                return true;  // Touch is within Jerry, event handled
+//        }
+//        return super.onTouchEvent(event);  // For other actions, use default handling
+//    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
@@ -151,27 +177,19 @@ public class MyCanvasView extends View {
                 float touchX = event.getX();
                 float touchY = event.getY();
 
-                if (isTouchWithinJerry(touchX, touchY)) {
-                    // Check if the touch is within the Jerry circle
-                    if (touchX < jerryX) {
-                        // If touch is to the left of Jerry, move left
-                        if(jerryX >= 390){
-                            // we dont move left if already in left lane
-                            moveJerryLeft();
-                        }
-                    }else {
-                        // If touch is to the right of Jerry, move right
-                        if(jerryX <= 690){
-                            // we dont move right if already in right lane
-                            moveJerryRight();
-                        }
-                    }
-                    return true;  // Event handled, stop further propagation
+                if (touchX > jerryX) {
+                    moveJerryRight();
+                }else if(touchX < jerryX){
+                    moveJerryLeft();
                 }
-                return true;  // Touch is within Jerry, event handled
         }
         return super.onTouchEvent(event);  // For other actions, use default handling
     }
+
+
+
+
+
     private boolean isTouchWithinJerry(float touchX, float touchY) {
         float dx = touchX - jerryX;
         float dy = touchY - jerryY;
@@ -189,25 +207,21 @@ public class MyCanvasView extends View {
     }
     private void moveTom(){
         if(TomX > 60 && TomX < 330){
-            if(TomY - TomRadius - (obstacle1.getObstacleY() + obstacle1.getObstacleHeight()) < 50){
-                moveTomRight();
-            }else if(TomY - TomRadius - (obstacle2.getObstacleY() + obstacle2.getObstacleHeight()) < 100) {
+            if(TomY - TomRadius - (obstacle1.getObstacleY() + obstacle1.getObstacleHeight()) < 10){
                 moveTomRight();
             }
         }else if(TomX > 390 && TomX < 690){
-            if(TomY - TomRadius - (obstacle3.getObstacleY() + obstacle3.getObstacleHeight()) < 50){
-                if(jerryX > 60 && jerryX < 330){
-                    moveTomLeft();
-                }else if(jerryX > 750 && jerryX < 1020){
+            if(TomY - TomRadius - (obstacle3.getObstacleY() + obstacle3.getObstacleHeight()) < 10){
+                if(TomY - TomRadius - (obstacle1.getObstacleY() + obstacle1.getObstacleHeight()) < 10){
                     moveTomRight();
+                }else if(TomY - TomRadius - (obstacle5.getObstacleY() + obstacle5.getObstacleHeight()) < 10){
+                    moveTomLeft();
                 }else{
                     moveTomLeft();
                 }
             }
         }else if(TomX > 750 && TomX < 1020){
-            if(TomY - TomRadius - (obstacle4.getObstacleY() + obstacle4.getObstacleHeight()) < 50){
-                moveTomLeft();
-            }else if(TomY - TomRadius - (obstacle5.getObstacleY() + obstacle5.getObstacleHeight()) < 50) {
+            if(TomY - TomRadius - (obstacle5.getObstacleY() + obstacle5.getObstacleHeight()) < 10) {
                 moveTomLeft();
             }
         }
@@ -222,26 +236,13 @@ public class MyCanvasView extends View {
         invalidate();
     }
     boolean alreadycollided1 = false;
-    boolean alreadycollided2 = false;
+    boolean alreadycollided5 = false;
     boolean alreadycollided3 = false;
     public void Collission(){
-        if((jerryX > 60 && jerryX < 330) || (jerryX > 750 && jerryX < 1020)){
+        if((jerryX > 60 && jerryX < 330)){
             if(jerryY - jerryRadius <= obstacle1.getObstacleY()+obstacle1.getObstacleHeight() && jerryY - jerryRadius >= obstacle1.getObstacleY()){
                 if(alreadycollided1 == false){
                     alreadycollided1 = true;
-                    num_collisions++;
-                    if(num_collisions == 1){
-                        displayToast("Collision detected, Tom has closed in");
-                        CloserTom1();
-                    }else if(num_collisions == 2){
-                        CloserTom2();
-                        displayToast("Game Over");
-                    }
-                }
-            }
-            if(jerryY - jerryRadius <= obstacle2.getObstacleY()+obstacle2.getObstacleHeight() && jerryY - jerryRadius >= obstacle2.getObstacleY()){
-                if(alreadycollided2 == false){
-                    alreadycollided2 = true;
                     num_collisions++;
                     if(num_collisions == 1){
                         displayToast("Collision detected, Tom has closed in");
@@ -266,15 +267,29 @@ public class MyCanvasView extends View {
                     }
                 }
             }
+        }else if( (jerryX > 750 && jerryX < 1020)){
+            if(jerryY - jerryRadius <= obstacle5.getObstacleY()+obstacle5.getObstacleHeight() && jerryY - jerryRadius >= obstacle5.getObstacleY()){
+                if(alreadycollided5 == false){
+                    alreadycollided5 = true;
+                    num_collisions++;
+                    if(num_collisions == 1){
+                        displayToast("Collision detected, Tom has closed in");
+                        CloserTom1();
+                    }else if(num_collisions == 2){
+                        CloserTom2();
+                        displayToast("Game Over");
+                    }
+                }
+            }
         }
         if(alreadycollided1){
             if(jerryY - jerryRadius > obstacle1.getObstacleY()+obstacle1.getObstacleHeight() || jerryY + jerryRadius< obstacle1.getObstacleY()){
                 alreadycollided1 = false;
             }
         }
-        if(alreadycollided2){
-            if(jerryY - jerryRadius > obstacle2.getObstacleY()+obstacle2.getObstacleHeight() || jerryY + jerryRadius< obstacle2.getObstacleY()){
-                alreadycollided2 = false;
+        if(alreadycollided5){
+            if(jerryY - jerryRadius > obstacle5.getObstacleY()+obstacle5.getObstacleHeight() || jerryY + jerryRadius< obstacle5.getObstacleY()){
+                alreadycollided5 = false;
             }
         }
         if(alreadycollided3){
@@ -314,25 +329,21 @@ public class MyCanvasView extends View {
     }
     private void RegenerateObstacles() {
         moveObstacle(obstacle1);
-        moveObstacle(obstacle2);
         moveObstacle(obstacle3);
-        moveObstacle(obstacle4);
         moveObstacle(obstacle5);
 
         // Whichever obstacle appears to move off screen, reset it back on screen
-        resetIfOffScreen(obstacle1);
-        resetIfOffScreen(obstacle2);
-        resetIfOffScreen(obstacle3);
-        resetIfOffScreen(obstacle4);
-        resetIfOffScreen(obstacle5);
+        resetIfOffScreen(obstacle1,0,50);
+        resetIfOffScreen(obstacle5,250,300);
+        resetIfOffScreen(obstacle3,500,550);
     }
 
-    private void resetIfOffScreen(ObstacleSquare obstacle) {
+    private void resetIfOffScreen(ObstacleSquare obstacle,int l_bound, int u_bound) {
         // Assuming getHeight() gives the height of your view
         int viewHeight = getHeight();
-        if (obstacle.getObstacleY() > viewHeight) {
-            // Reset obstacle to its initial position
-            obstacle.setObstacleY(-obstacle.getObstacleHeight()); // Move it above the screen
+        if (obstacle.getObstacleY() > TomY + 50) {
+
+            obstacle.setObstacleY(randomnum(l_bound,u_bound)); // Move it above the screen
             invalidate();
         }
     }
@@ -355,7 +366,7 @@ public class MyCanvasView extends View {
         score = 0;
         num_collisions = 0;
         alreadycollided1 = false;
-        alreadycollided2 = false;
+        alreadycollided5 = false;
         alreadycollided3 = false;
 
         // Reset positions of Jerry and Tom
@@ -368,5 +379,10 @@ public class MyCanvasView extends View {
         obstaclesetter();
         // Invalidate the canvas to reflect the changes
         invalidate();
+    }
+    private int randomnum(int l_bound,int u_bound){
+        Random rand = new Random();
+        int Y = rand.nextInt(u_bound - l_bound) + l_bound;
+        return Y;
     }
 }

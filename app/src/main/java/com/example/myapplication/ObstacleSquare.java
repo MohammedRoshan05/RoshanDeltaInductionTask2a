@@ -16,7 +16,7 @@ public class ObstacleSquare {
         this.obstacleY = obstacleY;
         this.obstacleVelocity = obstacleVelocity;
         obstacleWidth = 210;
-        obstacleHeight = 210;
+        obstacleHeight = 100;
     }
     public Paint getObstacleColor() {
         return obstacleColor;
